@@ -1,0 +1,704 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="Notes of programming life." />
+
+
+
+  <meta name="keywords" content="pycharm,python," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="AlexInTown's Notes" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="对于机器学习的应用场景，Python工程往往依赖各种算法框架，而其依赖的底层库往往是与平台高度相关的，没有经验会比较耗费精力。在不同平台分别进行开发和部署Python工程的时候，装两份环境实在是一件痛苦并且效率不高的选择。那么退而求其次，可能有人选择在windows平台做开发工作，没有IDE的debug环境的条件下，直接在linux平台上测试。而这样要调通往往很有挑战性（特别是调用你不太熟悉的包出">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Python工程远程部署与调试">
+<meta property="og:url" content="http://alexintowm.com/2016/03/31/python-remote-deployment-debugging/index.html">
+<meta property="og:site_name" content="AlexInTown's Notes">
+<meta property="og:description" content="对于机器学习的应用场景，Python工程往往依赖各种算法框架，而其依赖的底层库往往是与平台高度相关的，没有经验会比较耗费精力。在不同平台分别进行开发和部署Python工程的时候，装两份环境实在是一件痛苦并且效率不高的选择。那么退而求其次，可能有人选择在windows平台做开发工作，没有IDE的debug环境的条件下，直接在linux平台上测试。而这样要调通往往很有挑战性（特别是调用你不太熟悉的包出">
+<meta property="og:image" content="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/add_server.png">
+<meta property="og:image" content="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/add_server_detail.png">
+<meta property="og:image" content="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/advanced_server_setting.png">
+<meta property="og:image" content="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/project_path_mapping.png">
+<meta property="og:image" content="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/tools_deploy_option.png">
+<meta property="og:image" content="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/deploy_upload_code.png">
+<meta property="og:updated_time" content="2016-03-31T11:07:35.579Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Python工程远程部署与调试">
+<meta name="twitter:description" content="对于机器学习的应用场景，Python工程往往依赖各种算法框架，而其依赖的底层库往往是与平台高度相关的，没有经验会比较耗费精力。在不同平台分别进行开发和部署Python工程的时候，装两份环境实在是一件痛苦并且效率不高的选择。那么退而求其次，可能有人选择在windows平台做开发工作，没有IDE的debug环境的条件下，直接在linux平台上测试。而这样要调通往往很有挑战性（特别是调用你不太熟悉的包出">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Python工程远程部署与调试 | AlexInTown's Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?704a7eb829def38e589ca7b4d5dd474b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">AlexInTown's Notes</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Python工程远程部署与调试
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2016-03-31T17:46:00+08:00" content="2016-03-31">
+            2016-03-31
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/python/" itemprop="url" rel="index">
+                  <span itemprop="name">python</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/python/tools/" itemprop="url" rel="index">
+                  <span itemprop="name">tools</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/03/31/python-remote-deployment-debugging/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/31/python-remote-deployment-debugging/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>对于机器学习的应用场景，Python工程往往依赖各种算法框架，而其依赖的底层库往往是与平台高度相关的，没有经验会比较耗费精力。在不同平台分别进行开发和部署Python工程的时候，装两份环境实在是一件痛苦并且效率不高的选择。那么退而求其次，可能有人选择在windows平台做开发工作，没有IDE的debug环境的条件下，直接在linux平台上测试。而这样要调通往往很有挑战性（特别是调用你不太熟悉的包出错的时候）。</p>
+<p>PyCharm 是一个非常好用的IDE，编辑提示功能比较智能，并且对于各种类型的工程支持很全，插件完备。如果你只想在windows或者mac上使用PyCharm 开发（不测试运行），并且在安装了很多Python机器学习包的linux机器进行部署，又能获得IDE下debug的便利，一切是不是太完美？</p>
+<p>其实使用PyCharm进行少量的设置，就能实现Python远程开发和调试，获得与本地开发测试一致的体验。</p>
+<h2 id="u51C6_u5907_u5DE5_u4F5C"><a href="#u51C6_u5907_u5DE5_u4F5C" class="headerlink" title="准备工作"></a>准备工作</h2><p>首先进行远程Python环境的设置，配置安装所需的包，为后面配置记录Python所在路径(如/usr/local/bin/python)。如果要使用virtualenv，注意替换成对应python可执行文件路径。<br>将工程上传到远程环境某个目录中，例如/home/xxxx/workspace/中， 或者使用git clone到远程服务器上。</p>
+<h2 id="u8FDC_u7A0BPython_u73AF_u5883_u8BBE_u7F6E"><a href="#u8FDC_u7A0BPython_u73AF_u5883_u8BBE_u7F6E" class="headerlink" title="远程Python环境设置"></a>远程Python环境设置</h2><p>PyCharm下打开菜单项，Settings-&gt;Deployment 点击‘+’添加新环境。<br>使用SFTP形式进行服务器连接：<br><img src="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/add_server.png" alt="添加远程服务器"><br>配置连接的host和port（SSH：22），以及对应的用户名和密码。Root path是远程机器对应的代码根目录，注意如果使用home目录，不要使用‘~’。<br><img src="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/add_server_detail.png" alt="添加远程服务器选项"><br>高级设置将编码方式设置成UTF-8.<br><img src="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/advanced_server_setting.png" alt="添加远程服务器高级设置"></p>
+<h2 id="u5DE5_u7A0B_u8DEF_u5F84_u6620_u5C04"><a href="#u5DE5_u7A0B_u8DEF_u5F84_u6620_u5C04" class="headerlink" title="工程路径映射"></a>工程路径映射</h2><p>配置工程路径映射关系，本地配置当前工程根目录，远程配置对应的工程目录名。工程根目录+工程目录名，在这个例子中即为/home/xxxx/workspace/project-path。<br><img src="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/project_path_mapping.png" alt="配置工程路径映射"></p>
+<h2 id="u4EE3_u7801_u81EA_u52A8_u4E0A_u4F20"><a href="#u4EE3_u7801_u81EA_u52A8_u4E0A_u4F20" class="headerlink" title="代码自动上传"></a>代码自动上传</h2><p>工程路径的映射关系建立后，可以实现Ctrl+S保存时，代码自动上传到远程服务器。<br><img src="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/tools_deploy_option.png" alt="代码自动上传选项"><br>代码上传设置：<br><img src="http://7xsh66.com1.z0.glb.clouddn.com/hexo/python-remote-deployment-debugging/deploy_upload_code.png" alt="代码自动上传设置"></p>
+<h2 id="u603B_u7ED3"><a href="#u603B_u7ED3" class="headerlink" title="总结"></a>总结</h2><p>对于使用theano，Caffe等GPU计算环境的工程，输出也可以返回到PyCharm的控制台中，使用PyCharm IDE进行远程调试的确能够大大提高效率。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/pycharm/" rel="tag">#pycharm</a>
+          
+            <a href="/tags/python/" rel="tag">#python</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/19/graph-shortest-path/" rel="next">基础图论-最短路径算法总结</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/03/31/python-remote-deployment-debugging/"
+                   data-title="Python工程远程部署与调试" data-url="http://alexintowm.com/2016/03/31/python-remote-deployment-debugging/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/uploads/avatar.jpg" alt="AlexInTown" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">AlexInTown</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">Notes of programming life.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#u51C6_u5907_u5DE5_u4F5C"><span class="nav-number">1.</span> <span class="nav-text">准备工作</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u8FDC_u7A0BPython_u73AF_u5883_u8BBE_u7F6E"><span class="nav-number">2.</span> <span class="nav-text">远程Python环境设置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u5DE5_u7A0B_u8DEF_u5F84_u6620_u5C04"><span class="nav-number">3.</span> <span class="nav-text">工程路径映射</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u4EE3_u7801_u81EA_u52A8_u4E0A_u4F20"><span class="nav-number">4.</span> <span class="nav-text">代码自动上传</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u603B_u7ED3"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AlexInTown</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"alexintown"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"slide":{"type":"slide","bdImg":"3","bdPos":"left","bdTop":"250"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+
+
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

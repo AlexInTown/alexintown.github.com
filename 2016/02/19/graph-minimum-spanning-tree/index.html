@@ -1,0 +1,713 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="Notes of programming life." />
+
+
+
+  <meta name="keywords" content="Kruskal,Prim,最小生成树," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="AlexInTown's Notes" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="给定带权无向连通图G(V, E)，最小生成树指所有边权重之和最小的生成树。Prim算法和Kruskal算法分别采用不同的贪心策略，Prim算法适用于稠密图，Kruskal算法适用于稀疏图。
+Prim 算法Prim 算法维护一个子图G’，对应的点集为V’，边集E’，表示生成树过程中已经包括的顶点和边；通过贪心地添加在V-V’中代价最小的顶点，同时更新剩下顶点的代价，最终生成目标树。
+Prim算法的证">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基础图论-Prim, Kruskal算法证明及实现">
+<meta property="og:url" content="http://alexintowm.com/2016/02/19/graph-minimum-spanning-tree/index.html">
+<meta property="og:site_name" content="AlexInTown's Notes">
+<meta property="og:description" content="给定带权无向连通图G(V, E)，最小生成树指所有边权重之和最小的生成树。Prim算法和Kruskal算法分别采用不同的贪心策略，Prim算法适用于稠密图，Kruskal算法适用于稀疏图。
+Prim 算法Prim 算法维护一个子图G’，对应的点集为V’，边集E’，表示生成树过程中已经包括的顶点和边；通过贪心地添加在V-V’中代价最小的顶点，同时更新剩下顶点的代价，最终生成目标树。
+Prim算法的证">
+<meta property="og:updated_time" content="2016-02-23T01:50:00.681Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基础图论-Prim, Kruskal算法证明及实现">
+<meta name="twitter:description" content="给定带权无向连通图G(V, E)，最小生成树指所有边权重之和最小的生成树。Prim算法和Kruskal算法分别采用不同的贪心策略，Prim算法适用于稠密图，Kruskal算法适用于稀疏图。
+Prim 算法Prim 算法维护一个子图G’，对应的点集为V’，边集E’，表示生成树过程中已经包括的顶点和边；通过贪心地添加在V-V’中代价最小的顶点，同时更新剩下顶点的代价，最终生成目标树。
+Prim算法的证">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 基础图论-Prim, Kruskal算法证明及实现 | AlexInTown's Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?704a7eb829def38e589ca7b4d5dd474b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">AlexInTown's Notes</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              基础图论-Prim, Kruskal算法证明及实现
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2016-02-19T15:35:00+08:00" content="2016-02-19">
+            2016-02-19
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/algorithm/" itemprop="url" rel="index">
+                  <span itemprop="name">algorithm</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/02/19/graph-minimum-spanning-tree/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/19/graph-minimum-spanning-tree/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>给定带权无向连通图G(V, E)，最小生成树指所有边权重之和最小的生成树。Prim算法和Kruskal算法分别采用不同的贪心策略，Prim算法适用于稠密图，Kruskal算法适用于稀疏图。</p>
+<h2 id="Prim__u7B97_u6CD5"><a href="#Prim__u7B97_u6CD5" class="headerlink" title="Prim 算法"></a>Prim 算法</h2><p>Prim 算法维护一个子图G’，对应的点集为V’，边集E’，表示生成树过程中已经包括的顶点和边；通过贪心地添加在V-V’中代价最小的顶点，同时更新剩下顶点的代价，最终生成目标树。</p>
+<h3 id="Prim_u7B97_u6CD5_u7684_u8BC1_u660E"><a href="#Prim_u7B97_u6CD5_u7684_u8BC1_u660E" class="headerlink" title="Prim算法的证明"></a>Prim算法的证明</h3><ol>
+<li>初始情况下，G’仅有一个顶点，所以G’为一棵最小生成树，并且G’是最终的最小生成树T的子图。</li>
+<li>当前G’是T的子图，V-V’中代价最小的顶点为u，其代价为u到V’中最近的顶点v边权e。<br>假设此次添加的不是e(u, v)，而在最终的T中，连通G’和 T-G’的边为e’。那么将e添加到T中（形成环），并删去e’能够得到更小的权重总和，这与T为最小生成树矛盾。</li>
+</ol>
+<p>所以e必出现在T中，G’添加了顶点u和边e后，依然是T的子图。<br>综上所述，通过|V|-1次添加顶点后，生成的子图为最小生成树。</p>
+<h3 id="Prim_u7B97_u6CD5_u7684C++_u5B9E_u73B0"><a href="#Prim_u7B97_u6CD5_u7684C++_u5B9E_u73B0" class="headerlink" title="Prim算法的C++实现"></a>Prim算法的C++实现</h3><p>从一个例子来看Prim算法的实现，<a href="http://poj.org/problem?id=1258" target="_blank" rel="external">poj 1258 Ari-Net</a>。<br>题意很好理解：铺设光纤网络，让整个网络是连通的，并且使得光纤的总开销最小。基本上是对最小生成树的直接运用。<br><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;memory.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="keyword">const</span> <span class="keyword">int</span> MAXN = <span class="number">101</span>;</span><br><span class="line"><span class="keyword">int</span> g[MAXN][MAXN];    <span class="comment">// 邻接矩阵</span></span><br><span class="line"><span class="keyword">int</span> N;</span><br><span class="line"><span class="keyword">int</span> min_cost[MAXN];   <span class="comment">// 顶点的加入代价</span></span><br><span class="line"><span class="keyword">bool</span> visited[MAXN];</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">prim</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i,j;</span><br><span class="line">    <span class="built_in">memset</span>(visited, <span class="number">0</span>, <span class="keyword">sizeof</span>(<span class="keyword">bool</span>) * N);</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">1</span>; i &lt; N; ++i)&#123;</span><br><span class="line">        min_cost[i] = <span class="number">100000000</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> min_cost_val, min_cost_v;</span><br><span class="line">    min_cost[<span class="number">0</span>] = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>)&#123;</span><br><span class="line">        min_cost_v = -<span class="number">1</span>;</span><br><span class="line">        min_cost_val = <span class="number">1000000</span>;</span><br><span class="line">        <span class="keyword">for</span>(j = <span class="number">0</span>; j &lt; N; ++j)&#123;      <span class="comment">// 寻找在V-V'中加入代价最小的顶点</span></span><br><span class="line">            <span class="keyword">if</span>(!visited[j] &amp;&amp; min_cost_val &gt; min_cost[j])&#123;</span><br><span class="line">                min_cost_val = min_cost[j];</span><br><span class="line">                min_cost_v = j;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">if</span>(min_cost_v == -<span class="number">1</span>) <span class="keyword">break</span>;  <span class="comment">// 都已经加入，结束</span></span><br><span class="line">        res += min_cost_val;         <span class="comment">// 更新总代价</span></span><br><span class="line">        visited[min_cost_v] = <span class="number">1</span>;     <span class="comment">// 更新加入的标记</span></span><br><span class="line">        <span class="keyword">for</span>(j = <span class="number">0</span>; j &lt; N; ++j)&#123;      <span class="comment">// 更新剩下顶点的加入代价</span></span><br><span class="line">            <span class="keyword">if</span>(!visited[j] &amp;&amp; min_cost[j] &gt; g[min_cost_v][j])&#123;</span><br><span class="line">                min_cost[j] = g[min_cost_v][j];</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> i,j;</span><br><span class="line">    <span class="keyword">while</span>(<span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;N) != EOF)&#123;</span><br><span class="line">        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; N; ++i)&#123;</span><br><span class="line">            <span class="keyword">for</span>(j = <span class="number">0</span>;j &lt; N; ++j)&#123;</span><br><span class="line">                <span class="built_in">scanf</span>(<span class="string">"%d"</span>, &amp;g[i][j]);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, prim());</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h3 id="Prim_u7B97_u6CD5_u590D_u6742_u5EA6_u5206_u6790"><a href="#Prim_u7B97_u6CD5_u590D_u6742_u5EA6_u5206_u6790" class="headerlink" title="Prim算法复杂度分析"></a>Prim算法复杂度分析</h3><p>上述算法实现中，每次从V-V’中寻找最小代价的点，更新剩下顶点，时间复杂度为O(|V|)。添加顶点次数|V|-1，总的时间复杂度为O(|V|^2)。</p>
+<p>若采用邻接表，对于更新剩下顶点的时间总开销，减小为O(|E|)，但寻找最小代价的点没有改进。</p>
+<p>若采用邻接表，二叉堆作为优先队列，剩余顶点代价更新次数O(|E|)次，每次开销O(log|V|)；取最小代价点的总开销为O(|V|log|V|); 故时间复杂度为O(|E|log|V| + |V|log|V|) = O(|E|log|V|)。</p>
+<p>若采用邻接表，斐波拉契数堆，剩余顶点代价更新总开销为O(|E|)，因为斐波拉契堆插入开销为O(1)；取最小代价点单次为O(log|V|)，总开销O(|V|log|V|)；故时间复杂度为O(|E| + |V|log|V|)。</p>
+<h2 id="Kruskal_u7B97_u6CD5"><a href="#Kruskal_u7B97_u6CD5" class="headerlink" title="Kruskal算法"></a>Kruskal算法</h2><p>Kruskal 算法，先对所有边按边权排序(从小到大)，维护一个子图G’，对于每个边e(u, v)，若能保证加入后子图中没有环，则将该边加入子图。<br>对于连通子图中的顶点，可以使用并查集来标识。如果边e的顶点u，v在同一个集合中，加入e后必然会形成环路，反之则可以加入e。</p>
+<h3 id="Kruskal_u7B97_u6CD5_u7684_u8BC1_u660E"><a href="#Kruskal_u7B97_u6CD5_u7684_u8BC1_u660E" class="headerlink" title="Kruskal算法的证明"></a>Kruskal算法的证明</h3><p>与Prim算法类似，采用数学归纳法证明：</p>
+<ol>
+<li>初始边集X为空，所有顶点都各成一个连通子图，并且每个子图都是最后的最小生成树T的子图。</li>
+<li>假设当前每个连通子图都是T的子图，考虑连接各个子图之间的边，设最小的为e(u, v)。那么e(u, v)将出现在T中：因为若加入的是e’，而e不被包含在T中，加入e后可以将e’删除，并且保持生成树的性质且总代价比T更小。加入了e后，各连通子图依旧是T的子图。</li>
+</ol>
+<p>综上，每次加入边能保证每个子图都是最小生成树T的子图，通过|V|-1次加入操作就能生成最小生成树。</p>
+<h3 id="Kruskal_u7B97_u6CD5_u7684C++_u5B9E_u73B0"><a href="#Kruskal_u7B97_u6CD5_u7684C++_u5B9E_u73B0" class="headerlink" title="Kruskal算法的C++实现"></a>Kruskal算法的C++实现</h3><p>我们看另一个例子，<a href="http://poj.org/problem?id=2377" target="_blank" rel="external">poj 2377 Bad Cowtractors</a>。<br>题意：铺设网络，使得网络连通并开销最大，输出网络开销。将边的处理顺序变成从大到小即可。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;memory.h&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;stdio.h&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="keyword">struct</span> Edge&#123;</span><br><span class="line">    <span class="keyword">int</span> u, v, w;</span><br><span class="line">    <span class="keyword">bool</span> <span class="keyword">operator</span>&lt; (<span class="keyword">const</span> Edge &amp;b) <span class="keyword">const</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> w &gt; b.w;  <span class="comment">// 自定义比较函数</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"><span class="keyword">int</span> arr[<span class="number">1000</span>];</span><br><span class="line">Edge edges[<span class="number">20000</span>];</span><br><span class="line"><span class="comment">// 并查集操作，如果a,b在不同集合，合并集合，返回集合id；否则返回-1。</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">unifind</span><span class="params">(<span class="keyword">int</span> a, <span class="keyword">int</span> b)</span></span>&#123;</span><br><span class="line">    <span class="keyword">int</span> fa = arr[a];</span><br><span class="line">    <span class="keyword">int</span> fb = arr[b];</span><br><span class="line">    <span class="keyword">while</span>(fa&gt;=<span class="number">0</span>)&#123;</span><br><span class="line">        a = fa;</span><br><span class="line">        fa = arr[a];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">while</span>(fb&gt;=<span class="number">0</span>)&#123;</span><br><span class="line">        b = fb;</span><br><span class="line">        fb = arr[b];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(a == b) <span class="keyword">return</span> -<span class="number">1</span>;   <span class="comment">// 同一个集合</span></span><br><span class="line">    <span class="keyword">int</span> res;</span><br><span class="line">    <span class="keyword">if</span>(fa &lt; fb)&#123;            <span class="comment">// 按秩合并</span></span><br><span class="line">        arr[a] += fb;</span><br><span class="line">        arr[b] = a;</span><br><span class="line">        res = a;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        arr[b] += fa;</span><br><span class="line">        arr[a] = b;</span><br><span class="line">        res = b;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">int</span> N, M;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">kruskal</span><span class="params">()</span></span>&#123;</span><br><span class="line">    sort(edges, edges+M);   <span class="comment">// 排序</span></span><br><span class="line">    <span class="keyword">int</span> i = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; M; ++i)&#123; <span class="comment">// 从小到大处理加入边</span></span><br><span class="line">        <span class="keyword">if</span>(unifind(edges[i].u, edges[i].v) &gt;= <span class="number">0</span>)&#123;  </span><br><span class="line">            res += edges[i].w;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> cnt = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; N; ++i)&#123;</span><br><span class="line">        <span class="keyword">if</span>(arr[i] &lt; <span class="number">0</span>) cnt++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(cnt &gt; <span class="number">1</span>) <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="built_in">scanf</span>(<span class="string">"%d%d"</span>, &amp;N, &amp;M);</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; M; ++i)&#123;</span><br><span class="line">        Edge &amp;e = edges[i];</span><br><span class="line">        <span class="built_in">scanf</span>(<span class="string">"%d%d%d"</span>, &amp;e.u, &amp;e.v, &amp;e.w);</span><br><span class="line">        e.u--; e.v --;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">memset</span>(arr, -<span class="number">1</span>, <span class="keyword">sizeof</span>(<span class="keyword">int</span>) *N);  <span class="comment">// 初始化并查集</span></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">"%d\n"</span>, kruskal());</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Kruskal_u7B97_u6CD5_u590D_u6742_u5EA6_u5206_u6790"><a href="#Kruskal_u7B97_u6CD5_u590D_u6742_u5EA6_u5206_u6790" class="headerlink" title="Kruskal算法复杂度分析"></a>Kruskal算法复杂度分析</h3><p>Kruskal算法实现起来直接简单，开销取决于排序操作O(|E|log|E|) = O(|E|log|V|)。图较为稀疏的时候，比Prim算法更有优势。</p>
+<h2 id="Prim_uFF0CKruskal_u7B97_u6CD5_u6BD4_u8F83"><a href="#Prim_uFF0CKruskal_u7B97_u6CD5_u6BD4_u8F83" class="headerlink" title="Prim，Kruskal算法比较"></a>Prim，Kruskal算法比较</h2><p>对于稀疏图，首选Kruskal算法。因为基于邻接表和二叉堆，实际实现中，效率一般比不上直接用快排。而采用斐波拉契堆，理论上均摊效率虽高，但实现起来也较复杂。</p>
+<p>对于稠密图，Prim算法没必要采用邻接表+堆，反而O(|V|^2)更为简单高效。</p>
+<p>上述两种C++实现，分别对稠密图和稀疏图有较好的适用性。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Kruskal/" rel="tag">#Kruskal</a>
+          
+            <a href="/tags/Prim/" rel="tag">#Prim</a>
+          
+            <a href="/tags/最小生成树/" rel="tag">#最小生成树</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/19/graph-shortest-path/" rel="prev">基础图论-最短路径算法总结</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2015/11/05/dp-poj-1065-wooden-sticks/" rel="next">Wooden Sticks POJ 1065</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/02/19/graph-minimum-spanning-tree/"
+                   data-title="基础图论-Prim, Kruskal算法证明及实现" data-url="http://alexintowm.com/2016/02/19/graph-minimum-spanning-tree/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/uploads/avatar.jpg" alt="AlexInTown" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">AlexInTown</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">Notes of programming life.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#Prim__u7B97_u6CD5"><span class="nav-number">1.</span> <span class="nav-text">Prim 算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Prim_u7B97_u6CD5_u7684_u8BC1_u660E"><span class="nav-number">1.1.</span> <span class="nav-text">Prim算法的证明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Prim_u7B97_u6CD5_u7684C++_u5B9E_u73B0"><span class="nav-number">1.2.</span> <span class="nav-text">Prim算法的C++实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Prim_u7B97_u6CD5_u590D_u6742_u5EA6_u5206_u6790"><span class="nav-number">1.3.</span> <span class="nav-text">Prim算法复杂度分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Kruskal_u7B97_u6CD5"><span class="nav-number">2.</span> <span class="nav-text">Kruskal算法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Kruskal_u7B97_u6CD5_u7684_u8BC1_u660E"><span class="nav-number">2.1.</span> <span class="nav-text">Kruskal算法的证明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kruskal_u7B97_u6CD5_u7684C++_u5B9E_u73B0"><span class="nav-number">2.2.</span> <span class="nav-text">Kruskal算法的C++实现</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Kruskal_u7B97_u6CD5_u590D_u6742_u5EA6_u5206_u6790"><span class="nav-number">2.3.</span> <span class="nav-text">Kruskal算法复杂度分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Prim_uFF0CKruskal_u7B97_u6CD5_u6BD4_u8F83"><span class="nav-number">3.</span> <span class="nav-text">Prim，Kruskal算法比较</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AlexInTown</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"alexintown"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"slide":{"type":"slide","bdImg":"3","bdPos":"left","bdTop":"250"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+
+
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

@@ -1,0 +1,730 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="Notes of programming life." />
+
+
+
+  <meta name="keywords" content="Bellman-Ford,Dijkstra,Floyd-Washall,SPFA,最短路径," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="AlexInTown's Notes" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="最短路径问题是图论中基础问题，本文对多种最短路径算法原理进行简单总结，并从实现和复杂度上进行比较。
+单源最短路径单源最短路径问题: 给定图G，源点s，求s到其他各个顶点的最短路径。
+Bellman-Ford算法图G中如果不存在负环，考虑s出发到其他各个节点，其最短路径将形成一个树（所谓前趋子图）。且该树的最大深度为|V|-1。那么可以通过“松弛”技术来更新其他点到s的距离。
+
+松弛操作dist[v">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基础图论-最短路径算法总结">
+<meta property="og:url" content="http://alexintowm.com/2016/02/19/graph-shortest-path/index.html">
+<meta property="og:site_name" content="AlexInTown's Notes">
+<meta property="og:description" content="最短路径问题是图论中基础问题，本文对多种最短路径算法原理进行简单总结，并从实现和复杂度上进行比较。
+单源最短路径单源最短路径问题: 给定图G，源点s，求s到其他各个顶点的最短路径。
+Bellman-Ford算法图G中如果不存在负环，考虑s出发到其他各个节点，其最短路径将形成一个树（所谓前趋子图）。且该树的最大深度为|V|-1。那么可以通过“松弛”技术来更新其他点到s的距离。
+
+松弛操作dist[v">
+<meta property="og:updated_time" content="2016-02-23T07:01:47.873Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="基础图论-最短路径算法总结">
+<meta name="twitter:description" content="最短路径问题是图论中基础问题，本文对多种最短路径算法原理进行简单总结，并从实现和复杂度上进行比较。
+单源最短路径单源最短路径问题: 给定图G，源点s，求s到其他各个顶点的最短路径。
+Bellman-Ford算法图G中如果不存在负环，考虑s出发到其他各个节点，其最短路径将形成一个树（所谓前趋子图）。且该树的最大深度为|V|-1。那么可以通过“松弛”技术来更新其他点到s的距离。
+
+松弛操作dist[v">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> 基础图论-最短路径算法总结 | AlexInTown's Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?704a7eb829def38e589ca7b4d5dd474b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">AlexInTown's Notes</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              基础图论-最短路径算法总结
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2016-02-19T15:35:00+08:00" content="2016-02-19">
+            2016-02-19
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/algorithm/" itemprop="url" rel="index">
+                  <span itemprop="name">algorithm</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2016/02/19/graph-shortest-path/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2016/02/19/graph-shortest-path/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><p>最短路径问题是图论中基础问题，本文对多种最短路径算法原理进行简单总结，并从实现和复杂度上进行比较。</p>
+<h2 id="u5355_u6E90_u6700_u77ED_u8DEF_u5F84"><a href="#u5355_u6E90_u6700_u77ED_u8DEF_u5F84" class="headerlink" title="单源最短路径"></a>单源最短路径</h2><p>单源最短路径问题: 给定图G，源点s，求s到其他各个顶点的最短路径。</p>
+<h3 id="Bellman-Ford_u7B97_u6CD5"><a href="#Bellman-Ford_u7B97_u6CD5" class="headerlink" title="Bellman-Ford算法"></a>Bellman-Ford算法</h3><p>图G中如果不存在负环，考虑s出发到其他各个节点，其最短路径将形成一个树（所谓前趋子图）。且该树的最大深度为|V|-1。那么可以通过“松弛”技术来更新其他点到s的距离。</p>
+<blockquote>
+<p>松弛操作<br>dist[v] = min(dist[u] + e(u,v), dist[v])</p>
+</blockquote>
+<p>因为无负环情况下，路径最长边数为|V|-1，那么每次对所有dist[v]进行松弛，最多执行|V|-1次将收敛。</p>
+<p>倘若第|V|次对所有顶点进行松弛操作，仍有更新，那么该图中存在负环。<br>所以Bellman-Ford算法也可以用来检测图中是否有负环。</p>
+<p>复杂度分析比较简单，每次松弛操作O(|E|)，总时间复杂度O(|V||E|)。</p>
+<h3 id="Bellman-Ford_u7B97_u6CD5C++_u4EE3_u7801"><a href="#Bellman-Ford_u7B97_u6CD5C++_u4EE3_u7801" class="headerlink" title="Bellman-Ford算法C++代码"></a>Bellman-Ford算法C++代码</h3><h3 id="Dijkstra_u7B97_u6CD5"><a href="#Dijkstra_u7B97_u6CD5" class="headerlink" title="Dijkstra算法"></a>Dijkstra算法</h3><p>Dijkstra 算法适用于无负环图。考虑Bellman-Ford算法中，每次对所有边进行松弛操作，对于已算出最短路径的顶点是一种浪费。</p>
+<p>而Dijkstra算法维护一个点集V’，初始为{s}，每次将当前最短路径的点加入其中，然后从该点出发，对未加入点进行松弛操作。</p>
+<p>这样通过|V|-1次加入顶点的操作，就能获得从s点到其他点的最短路径。</p>
+<p>当图中所有权重相等时，Dijkstra算法退化成BFS算法。</p>
+<h3 id="Dijkstra_u7B97_u6CD5_u7B80_u5355_u8BC1_u660E"><a href="#Dijkstra_u7B97_u6CD5_u7B80_u5355_u8BC1_u660E" class="headerlink" title="Dijkstra算法简单证明"></a>Dijkstra算法简单证明</h3><p>定义：V为顶点全集，dist[v]表示算法执行时，顶点v的路径长度。<br>下面证明：在Djikstra算法中，每次向V’加入顶点u后，dist[u]的值等于最短路径长度。<br>初始：V’={s} 显然成立<br>保持：考虑在V-V’中，u为当前路径长度最短的点，v为除u之外任意点，先证明u必然先于v加入V’。<br>假设v先加入V’，那<br>终止：</p>
+<h3 id="Dijkstra_u7B97_u6CD5C++_u4EE3_u7801"><a href="#Dijkstra_u7B97_u6CD5C++_u4EE3_u7801" class="headerlink" title="Dijkstra算法C++代码"></a>Dijkstra算法C++代码</h3><h3 id="Dijkstra_u7B97_u6CD5_u590D_u6742_u5EA6"><a href="#Dijkstra_u7B97_u6CD5_u590D_u6742_u5EA6" class="headerlink" title="Dijkstra算法复杂度"></a>Dijkstra算法复杂度</h3><p>松弛操作的总开销为O(|E|)。</p>
+<p>每次选取当前最短路径的点，线性扫描的方式为O(|V|)，采用二叉堆的开销为O(log|V|)。<br>两种方式总开销分别为O(|V|^2)和O(|V|log|V|)。</p>
+<p>所以线性扫描，总时间复杂度为O(|E|) + O(|V|^2) = O(|V|^2)</p>
+<p>而采用二叉堆在松弛后需要进行O(E)次入队操作，每次开销为O(log|V|)，故总复杂度为O(|E|) + O(|V|log|V|) + O(|E|log|V|) = O(|E|log|V|)。</p>
+<h3 id="SPFA__u7B97_u6CD5"><a href="#SPFA__u7B97_u6CD5" class="headerlink" title="SPFA 算法"></a>SPFA 算法</h3><p>SPFA(Shortest Path Faster Algorithm) 算法，在Bellman-Ford算法上加了一个队列优化。<br>在图存在负环的情况下，Dijkstra算法不适用，而Bellman-Ford算法复杂度太高，该算法就是较好的选择。</p>
+<p>算法维护一个队列，该队列初始状态下将s入队，每次用出队的顶点u进行松弛操作；如果有一个顶点v松弛成功更新了（比当前距离小），并且不在当前队列中，那么将v入队尾。</p>
+<p>在没有负环的情况下，每次入队能够保证减小dist[v]，直到队列为空，最终能够获得所有顶点的最短路径。算法复杂度O(n*|E|)，n为顶点平均入队次数，而入队次数取决于图的边权分布。算法运行时间不稳定，最坏的情况下，为Bellman-Ford算法。</p>
+<p>可能有负环的情况下，记录每个顶点的入队次数，如果存在顶点入队次数达到|V|，那么一定存在负环。</p>
+<p>实际运用中通过SLF(Smallest Label First)或LLL(Large Label Last)优化，一般比原算法有一定提升。关于SPFA的详细介绍：<br>//TODO</p>
+<h3 id="SPFA_u7B97_u6CD5C++_u4EE3_u7801"><a href="#SPFA_u7B97_u6CD5C++_u4EE3_u7801" class="headerlink" title="SPFA算法C++代码"></a>SPFA算法C++代码</h3><h2 id="u591A_u6E90_u6700_u77ED_u8DEF_u5F84"><a href="#u591A_u6E90_u6700_u77ED_u8DEF_u5F84" class="headerlink" title="多源最短路径"></a>多源最短路径</h2><h3 id="Floyd-Washall__u7B97_u6CD5"><a href="#Floyd-Washall__u7B97_u6CD5" class="headerlink" title="Floyd-Washall 算法"></a>Floyd-Washall 算法</h3><p>给定一个图G，任意两点u,v的路径可能经过所有其他点。该算法利用了动态规划思想，求图中任意两点最短路径的问题。</p>
+<blockquote>
+<p>考虑G中点(v0, v1, v2, …, vn)的前K个，uv中经过前K个顶点的最短距离dist[k][u][v]可以分解为：</p>
+<ol>
+<li>经过点k，那么dist[k][u][v] = dist[k-1][u][k] + dist[k-1][k][v]</li>
+<li>不经过k，那么dist[k][u][v] = dist[k-1][u][v]<br>递推式: dist[k][u][v] = min( dist[k-1][u][k] + dist[k-1][k][v], dist[k-1][u][v])<br>有了上述递推公式，就可以自底向上进行动态规划求解。算法复杂度为O(|V|^3)。</li>
+</ol>
+</blockquote>
+<h2 id="u6700_u77ED_u8DEF_u5F84_u7684_u8FD8_u539F"><a href="#u6700_u77ED_u8DEF_u5F84_u7684_u8FD8_u539F" class="headerlink" title="最短路径的还原"></a>最短路径的还原</h2><p>对于每次松弛操作，为每个顶点v记录father[v] = u，表示当前路径最后一步，u经e(u, v)到达v。<br>在最短路径算法完成后，沿father[v]进行回溯就可以还原出整条路径。</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Bellman-Ford/" rel="tag">#Bellman-Ford</a>
+          
+            <a href="/tags/Dijkstra/" rel="tag">#Dijkstra</a>
+          
+            <a href="/tags/Floyd-Washall/" rel="tag">#Floyd-Washall</a>
+          
+            <a href="/tags/SPFA/" rel="tag">#SPFA</a>
+          
+            <a href="/tags/最短路径/" rel="tag">#最短路径</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/03/31/python-remote-deployment-debugging/" rel="prev">Python工程远程部署与调试</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/02/19/graph-minimum-spanning-tree/" rel="next">基础图论-Prim, Kruskal算法证明及实现</a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2016/02/19/graph-shortest-path/"
+                   data-title="基础图论-最短路径算法总结" data-url="http://alexintowm.com/2016/02/19/graph-shortest-path/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/uploads/avatar.jpg" alt="AlexInTown" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">AlexInTown</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">Notes of programming life.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#u5355_u6E90_u6700_u77ED_u8DEF_u5F84"><span class="nav-number">1.</span> <span class="nav-text">单源最短路径</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Bellman-Ford_u7B97_u6CD5"><span class="nav-number">1.1.</span> <span class="nav-text">Bellman-Ford算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bellman-Ford_u7B97_u6CD5C++_u4EE3_u7801"><span class="nav-number">1.2.</span> <span class="nav-text">Bellman-Ford算法C++代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dijkstra_u7B97_u6CD5"><span class="nav-number">1.3.</span> <span class="nav-text">Dijkstra算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dijkstra_u7B97_u6CD5_u7B80_u5355_u8BC1_u660E"><span class="nav-number">1.4.</span> <span class="nav-text">Dijkstra算法简单证明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dijkstra_u7B97_u6CD5C++_u4EE3_u7801"><span class="nav-number">1.5.</span> <span class="nav-text">Dijkstra算法C++代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Dijkstra_u7B97_u6CD5_u590D_u6742_u5EA6"><span class="nav-number">1.6.</span> <span class="nav-text">Dijkstra算法复杂度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPFA__u7B97_u6CD5"><span class="nav-number">1.7.</span> <span class="nav-text">SPFA 算法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SPFA_u7B97_u6CD5C++_u4EE3_u7801"><span class="nav-number">1.8.</span> <span class="nav-text">SPFA算法C++代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u591A_u6E90_u6700_u77ED_u8DEF_u5F84"><span class="nav-number">2.</span> <span class="nav-text">多源最短路径</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Floyd-Washall__u7B97_u6CD5"><span class="nav-number">2.1.</span> <span class="nav-text">Floyd-Washall 算法</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u6700_u77ED_u8DEF_u5F84_u7684_u8FD8_u539F"><span class="nav-number">3.</span> <span class="nav-text">最短路径的还原</span></a></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AlexInTown</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"alexintown"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"slide":{"type":"slide","bdImg":"3","bdPos":"left","bdTop":"250"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+
+
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>

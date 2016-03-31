@@ -1,0 +1,740 @@
+<!doctype html>
+<html class="theme-next use-motion theme-next-mist">
+<head>
+  
+
+<meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+  <link rel="stylesheet" type="text/css" href="/vendors/fancybox/source/jquery.fancybox.css?v=2.1.5"/>
+
+
+
+
+<link rel="stylesheet" type="text/css" href="/css/main.css?v=0.4.5.1"/>
+
+
+    <meta name="description" content="Notes of programming life." />
+
+
+
+  <meta name="keywords" content="DP,LDS,LIS,greedy," />
+
+
+
+  <link rel="alternate" href="/atom.xml" title="AlexInTown's Notes" type="application/atom+xml" />
+
+
+
+  <link rel="shorticon icon" type="image/x-icon" href="/favicon.ico?v=0.4.5.1" />
+
+
+<meta name="description" content="题目大意有一台机器要对n根木棍进行加工，每根木棍用(l, w)的元组来表示，l为木棍的长度，w为木棍的重量；机器有如下特性：
+
+每次设置的时间延迟为1分钟(开始时必须设置一次);
+两根木棍(l1, w1), (l2, w2)依次输送给机器，并且满足条件(l1&amp;lt;=l2，w1&amp;lt;=w2)时，对于(l2, w2)无需重新设置。现给出n根木棍的(l, w)，求这组木棍通过该机器的最小设置时间。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Wooden Sticks POJ 1065">
+<meta property="og:url" content="http://alexintowm.com/2015/11/05/dp-poj-1065-wooden-sticks/index.html">
+<meta property="og:site_name" content="AlexInTown's Notes">
+<meta property="og:description" content="题目大意有一台机器要对n根木棍进行加工，每根木棍用(l, w)的元组来表示，l为木棍的长度，w为木棍的重量；机器有如下特性：
+
+每次设置的时间延迟为1分钟(开始时必须设置一次);
+两根木棍(l1, w1), (l2, w2)依次输送给机器，并且满足条件(l1&amp;lt;=l2，w1&amp;lt;=w2)时，对于(l2, w2)无需重新设置。现给出n根木棍的(l, w)，求这组木棍通过该机器的最小设置时间。">
+<meta property="og:updated_time" content="2015-12-07T06:50:08.322Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Wooden Sticks POJ 1065">
+<meta name="twitter:description" content="题目大意有一台机器要对n根木棍进行加工，每根木棍用(l, w)的元组来表示，l为木棍的长度，w为木棍的重量；机器有如下特性：
+
+每次设置的时间延迟为1分钟(开始时必须设置一次);
+两根木棍(l1, w1), (l2, w2)依次输送给机器，并且满足条件(l1&amp;lt;=l2，w1&amp;lt;=w2)时，对于(l2, w2)无需重新设置。现给出n根木棍的(l, w)，求这组木棍通过该机器的最小设置时间。">
+
+
+<script type="text/javascript" id="hexo.configuration">
+  var CONFIG = {
+    scheme: 'Mist',
+    sidebar: 'post'
+  };
+</script>
+
+  <title> Wooden Sticks POJ 1065 | AlexInTown's Notes </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  <!--[if lte IE 8]>
+  <div style=' clear: both; height: 59px; padding:0 0 0 15px; position: relative;margin:0 auto;'>
+    <a href="http://windows.microsoft.com/en-US/internet-explorer/products/ie/home?ocid=ie6_countdown_bannercode">
+      <img src="http://7u2nvr.com1.z0.glb.clouddn.com/picouterie.jpg" border="0" height="42" width="820"
+           alt="You are using an outdated browser. For a faster, safer browsing experience, upgrade for free today or use other browser ,like chrome firefox safari."
+           style='margin-left:auto;margin-right:auto;display: block;'/>
+    </a>
+  </div>
+<![endif]-->
+  
+
+  <script type="text/javascript">
+    var _hmt = _hmt || [];
+    (function() {
+      var hm = document.createElement("script");
+      hm.src = "//hm.baidu.com/hm.js?704a7eb829def38e589ca7b4d5dd474b";
+      var s = document.getElementsByTagName("script")[0];
+      s.parentNode.insertBefore(hm, s);
+    })();
+  </script>
+
+
+
+  <div class="container one-column page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><h1 class="site-meta">
+  <span class="logo-line-before"><i></i></span>
+  <a href="/" class="brand" rel="start">
+      <span class="logo">
+        <i class="icon-next-logo"></i>
+      </span>
+      <span class="site-title">AlexInTown's Notes</span>
+  </a>
+  <span class="logo-line-after"><i></i></span>
+</h1>
+
+<div class="site-nav-toggle">
+  <button>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+    <span class="btn-bar"></span>
+  </button>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu ">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            <i class="menu-item-icon icon-next-home"></i> <br />
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories" rel="section">
+            <i class="menu-item-icon icon-next-categories"></i> <br />
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives" rel="section">
+            <i class="menu-item-icon icon-next-archives"></i> <br />
+            归档
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags" rel="section">
+            <i class="menu-item-icon icon-next-tags"></i> <br />
+            标签
+          </a>
+        </li>
+      
+
+      
+      
+    </ul>
+  
+
+  
+</nav>
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div id="content" class="content"> 
+
+  <div id="posts" class="posts-expand">
+    
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <header class="post-header">
+
+      
+      
+        <h1 class="post-title" itemprop="name headline">
+          
+          
+            
+              Wooden Sticks POJ 1065
+            
+          
+        </h1>
+      
+
+      <div class="post-meta">
+        <span class="post-time">
+          发表于
+          <time itemprop="dateCreated" datetime="2015-11-05T21:53:12+08:00" content="2015-11-05">
+            2015-11-05
+          </time>
+        </span>
+
+        
+          <span class="post-category" >
+            &nbsp; | &nbsp; 分类于
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/algorithm/" itemprop="url" rel="index">
+                  <span itemprop="name">algorithm</span>
+                </a>
+              </span>
+
+              
+              
+                ， 
+              
+
+            
+              <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                <a href="/categories/algorithm/POJ/" itemprop="url" rel="index">
+                  <span itemprop="name">POJ</span>
+                </a>
+              </span>
+
+              
+              
+
+            
+          </span>
+        
+
+        
+          
+            <span class="post-comments-count">
+              &nbsp; | &nbsp;
+              <a href="/2015/11/05/dp-poj-1065-wooden-sticks/#comments" itemprop="discussionUrl">
+                <span class="post-comments-count ds-thread-count" data-thread-key="2015/11/05/dp-poj-1065-wooden-sticks/" itemprop="commentsCount"></span>
+              </a>
+            </span>
+          
+        
+      </div>
+    </header>
+
+    <div class="post-body">
+
+      
+      
+
+      
+        <span itemprop="articleBody"><h2 id="u9898_u76EE_u5927_u610F"><a href="#u9898_u76EE_u5927_u610F" class="headerlink" title="题目大意"></a>题目大意</h2><p>有一台机器要对n根木棍进行加工，每根木棍用(l, w)的元组来表示，l为木棍的长度，w为木棍的重量；机器有如下特性：</p>
+<ol>
+<li>每次设置的时间延迟为1分钟(开始时必须设置一次);</li>
+<li>两根木棍(l1, w1), (l2, w2)依次输送给机器，并且满足条件(l1&lt;=l2，w1&lt;=w2)时，对于(l2, w2)无需重新设置。<br>现给出n根木棍的(l, w)，求这组木棍通过该机器的最小设置时间。</li>
+</ol>
+<h3 id="u8F93_u5165"><a href="#u8F93_u5165" class="headerlink" title="输入"></a>输入</h3><p>第一行为正整数T，表示测试数据个数<br>每个测试数据第一行n，1 &lt;= n &lt;= 5000；<br>接下来第二行为2n个数，l1, w1, l2, w2 …. ln, wn</p>
+<h3 id="u8F93_u51FA"><a href="#u8F93_u51FA" class="headerlink" title="输出"></a>输出</h3><p>对每个测试数据输出最小设置时间</p>
+<h2 id="u521D_u6B65_u5206_u6790"><a href="#u521D_u6B65_u5206_u6790" class="headerlink" title="初步分析"></a>初步分析</h2><p>要设置时间最小，等价于求满足特性2的棍子序列的最少个数。长度和重量有2个维度，可以先对序列进行排序，第一排序字段为长度，次要排序字段为重量。例：</p>
+<blockquote>
+<p>原始序列: (4,9) (5,2) (2,1) (3,5) (1,4)<br>排序后为：(1,4) (2,1) (3,5) (4,9) (5,2)</p>
+</blockquote>
+<p>这样排序能够保证长度l是非递减序列。此时，找出最小设置时间，转化为重量w的最小的非递减序列的个数。</p>
+<blockquote>
+<p>重量序列：4, 1, 5, 9, 2</p>
+</blockquote>
+<p>简单验证可得到，该例最小重量序列的个数为2，两个序列分别为(4, 5, 9) (1, 2)</p>
+<h2 id="u8D2A_u5FC3_u6CD5"><a href="#u8D2A_u5FC3_u6CD5" class="headerlink" title="贪心法"></a>贪心法</h2><p>对于上述重量序列，易想到贪心算法：</p>
+<blockquote>
+<p>Step 0. times = 0<br>Step 1. 对于当前序列，求出最长递增子序列LIS<br>Step 2. 从当前序列中剔除该LIS，times++<br>Step 3. 直到序列为空</p>
+</blockquote>
+<p>给定一组子序列，子序列被剔除的顺序与最终结果无关；并且每次剔除序列时，LIS能够保证不比其他方法差。<br>假设一次提取子序列没有使用最长非递减子序列，剩下的元素可能导致子序列的个数增加。因此贪心法能够得到正确的结果。</p>
+<h3 id="u4EE3_u7801"><a href="#u4EE3_u7801" class="headerlink" title="代码"></a>代码</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;limits.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="keyword">int</span> T, N;</span><br><span class="line"></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; idx;</span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vi; </span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; parent;</span><br><span class="line"><span class="keyword">struct</span> Comp&#123;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="keyword">const</span> <span class="keyword">int</span> &amp;a, <span class="keyword">const</span> <span class="keyword">int</span> &amp;b)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> vi[a] &lt; vi[b];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">LIS</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp; vi, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp; parent, <span class="keyword">int</span> &amp;lastIdx)</span></span>&#123;</span><br><span class="line">    parent.resize(vi.size());</span><br><span class="line">    idx.resize(vi.size());</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; vi.size(); ++i)&#123;</span><br><span class="line">        <span class="keyword">int</span> j = upper_bound(idx.begin(), idx.begin()+ res, i,Comp())-idx.begin();</span><br><span class="line">        <span class="keyword">if</span>(j &gt; <span class="number">0</span>) parent[i] = idx[j-<span class="number">1</span>];</span><br><span class="line">        <span class="keyword">else</span> parent[i] = -<span class="number">1</span>;</span><br><span class="line">        idx[j] = i;</span><br><span class="line">        <span class="keyword">if</span>(j == res) res++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(res &gt; <span class="number">0</span>) lastIdx = idx[res-<span class="number">1</span>];</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">removeLIS</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;vi, <span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp;parent, <span class="keyword">int</span> lastIdx)</span></span>&#123;</span><br><span class="line">    <span class="keyword">while</span>(lastIdx &gt;=<span class="number">0</span>)&#123;</span><br><span class="line">        vi[lastIdx] = INT_MIN;</span><br><span class="line">        lastIdx = parent[lastIdx];</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> j = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; vi.size(); ++i)&#123;</span><br><span class="line">        <span class="keyword">if</span>(vi[i] != INT_MIN)</span><br><span class="line">            vi[j++] = vi[i];</span><br><span class="line">    &#125;</span><br><span class="line">    vi.resize(j);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="built_in">cin</span>&gt;&gt;T;</span><br><span class="line">    pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; pii;</span><br><span class="line">    <span class="built_in">vector</span>&lt;pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; &gt;  vpii;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> t = <span class="number">0</span>; t &lt; T; ++t)&#123;</span><br><span class="line">        <span class="built_in">cin</span>&gt;&gt;N;</span><br><span class="line">        vpii.clear();</span><br><span class="line">        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; N; ++i)&#123;</span><br><span class="line">            <span class="built_in">cin</span>&gt;&gt;pii.first&gt;&gt;pii.second;</span><br><span class="line">            vpii.push_back(pii);</span><br><span class="line">        &#125;</span><br><span class="line">        sort(vpii.begin(), vpii.end());</span><br><span class="line">        vi.clear();</span><br><span class="line">        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; N; ++i)&#123;</span><br><span class="line">            vi.push_back(vpii[i].second);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> lastIdx;</span><br><span class="line">        <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">        <span class="keyword">while</span>(vi.size())&#123;</span><br><span class="line">            LIS(vi, parent, lastIdx);</span><br><span class="line">            removeLIS(vi, parent, lastIdx);</span><br><span class="line">            res ++;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;res&lt;&lt;endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="u590D_u6742_u5EA6_u5206_u6790"><a href="#u590D_u6742_u5EA6_u5206_u6790" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>排序时间复杂度为O(nlog(n))。<br>假设求k次LIS，每次平均O(n/k log(n/k))，上界O(nlog(n))。<br>每个元素最多被剔除一次，但需要拷贝后续元素，最差情况为递减序列，复杂度为O(n^2)。<br>最差时间复杂度为O(n^2)。</p>
+<h2 id="u6700_u957F_u4E25_u683C_u9012_u51CF_u5B50_u5E8F_u5217"><a href="#u6700_u957F_u4E25_u683C_u9012_u51CF_u5B50_u5E8F_u5217" class="headerlink" title="最长严格递减子序列"></a>最长严格递减子序列</h2><p>假设最小的非递减子序列个数为x，而最长严格递减子序列为L。会有L==x，下面来证明这一点。</p>
+<h3 id="u8BC1_u660E"><a href="#u8BC1_u660E" class="headerlink" title="证明"></a>证明</h3><h4 id="L__26lt_3B_x__u4E0D_u6210_u7ACB"><a href="#L__26lt_3B_x__u4E0D_u6210_u7ACB" class="headerlink" title="L &lt; x 不成立"></a>L &lt; x 不成立</h4><p>非递减子序列的个数最小为x，基于上述对贪心法的正确性分析，我们可以认为这些非递减子序列是由不断的LIS算法剔除得到的。</p>
+<blockquote>
+<p>该序列组设为 s1, s2, .. ,si, .. sx<br>每个si末尾元素为 e1, e2, .. , ei, .. ex</p>
+</blockquote>
+<p>不妨设e1 e2 e3, … ex 的顺序，为排序后在重量序列中的顺序。明显有：</p>
+<blockquote>
+<p>e1 &gt; e2 &gt; .. &gt;ei … &gt; ex</p>
+</blockquote>
+<p>否则与LIS的定义矛盾。e1 到 ex 已经有x个元素符合严格递减子序列的定义，L &gt;= x; L &lt; x不成立。</p>
+<h4 id="L__26gt_3B_x__u4E0D_u6210_u7ACB"><a href="#L__26gt_3B_x__u4E0D_u6210_u7ACB" class="headerlink" title="L &gt; x 不成立"></a>L &gt; x 不成立</h4><p>由于递减序列L中的元素，不能出现在同一个非递减序列中。假设L大于x，那么必然有两个L中的元素出现在某个费递减序列中。矛盾，故L &gt; x不成立。</p>
+<p>因此L==x，直接求排序后重量序列中的严格递减序列的长度，即为x。</p>
+<h3 id="u4EE3_u7801-1"><a href="#u4EE3_u7801-1" class="headerlink" title="代码"></a>代码</h3><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;vector&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;algorithm&gt;</span></span></span><br><span class="line"><span class="preprocessor">#<span class="keyword">include</span> <span class="string">&lt;limits.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> <span class="built_in">std</span>;</span><br><span class="line"><span class="keyword">int</span> T, N;</span><br><span class="line"></span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; idx;</span><br><span class="line"><span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; vi; </span><br><span class="line"><span class="keyword">struct</span> Comp&#123;</span><br><span class="line">    <span class="function"><span class="keyword">bool</span> <span class="title">operator</span><span class="params">()</span><span class="params">(<span class="keyword">const</span> <span class="keyword">int</span> &amp;a, <span class="keyword">const</span> <span class="keyword">int</span> &amp;b)</span></span>&#123;</span><br><span class="line">        <span class="keyword">return</span> vi[a] &gt;= vi[b];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">LIS</span><span class="params">(<span class="built_in">vector</span>&lt;<span class="keyword">int</span>&gt; &amp; vi)</span></span>&#123;</span><br><span class="line">    idx.resize(vi.size());</span><br><span class="line">    <span class="keyword">int</span> res = <span class="number">0</span>;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; vi.size(); ++i)&#123;</span><br><span class="line">        <span class="keyword">int</span> j = upper_bound(idx.begin(), idx.begin()+ res, i,Comp())-idx.begin();</span><br><span class="line">        idx[j] = i;</span><br><span class="line">        <span class="keyword">if</span>(j == res) res++;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> res;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">main</span><span class="params">()</span></span>&#123;</span><br><span class="line">    <span class="built_in">cin</span>&gt;&gt;T;</span><br><span class="line">    pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; pii;</span><br><span class="line">    <span class="built_in">vector</span>&lt;pair&lt;<span class="keyword">int</span>, <span class="keyword">int</span>&gt; &gt;  vpii;</span><br><span class="line">    <span class="keyword">int</span> i;</span><br><span class="line">    <span class="keyword">for</span>(<span class="keyword">int</span> t = <span class="number">0</span>; t &lt; T; ++t)&#123;</span><br><span class="line">        <span class="built_in">cin</span>&gt;&gt;N;</span><br><span class="line">        vpii.clear();</span><br><span class="line">        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; N; ++i)&#123;</span><br><span class="line">            <span class="built_in">cin</span>&gt;&gt;pii.first&gt;&gt;pii.second;</span><br><span class="line">            vpii.push_back(pii);</span><br><span class="line">        &#125;</span><br><span class="line">        sort(vpii.begin(), vpii.end());</span><br><span class="line">        vi.clear();</span><br><span class="line">        <span class="keyword">for</span>(i = <span class="number">0</span>; i &lt; N; ++i)&#123;</span><br><span class="line">            vi.push_back(vpii[i].second);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">int</span> res = LIS(vi);</span><br><span class="line">        <span class="built_in">cout</span>&lt;&lt;res&lt;&lt;endl;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="u590D_u6742_u5EA6_u5206_u6790-1"><a href="#u590D_u6742_u5EA6_u5206_u6790-1" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>求LDS与LIS的时间复杂度一致，为O(nlog(n)).</p>
+</span>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/DP/" rel="tag">#DP</a>
+          
+            <a href="/tags/LDS/" rel="tag">#LDS</a>
+          
+            <a href="/tags/LIS/" rel="tag">#LIS</a>
+          
+            <a href="/tags/greedy/" rel="tag">#greedy</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2016/02/19/graph-minimum-spanning-tree/" rel="prev">基础图论-Prim, Kruskal算法证明及实现</a>
+            
+          </div>
+
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+ </div>
+
+        
+
+        
+          <div class="comments" id="comments">
+            
+              <div class="ds-thread" data-thread-key="2015/11/05/dp-poj-1065-wooden-sticks/"
+                   data-title="Wooden Sticks POJ 1065" data-url="http://alexintowm.com/2015/11/05/dp-poj-1065-wooden-sticks/">
+              </div>
+            
+          </div>
+        
+      </div>
+
+      
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" src="/uploads/avatar.jpg" alt="AlexInTown" itemprop="image"/>
+          <p class="site-author-name" itemprop="name">AlexInTown</p>
+        </div>
+        <p class="site-description motion-element" itemprop="description">Notes of programming life.</p>
+        <nav class="site-state motion-element">
+          <div class="site-state-item site-state-posts">
+            <a href="/archives">
+              <span class="site-state-item-count">4</span>
+              <span class="site-state-item-name">日志</span>
+            </a>
+          </div>
+
+          <div class="site-state-item site-state-categories">
+            <a href="/categories">
+              <span class="site-state-item-count">7</span>
+              <span class="site-state-item-name">分类</span>
+              </a>
+          </div>
+
+          <div class="site-state-item site-state-tags">
+            <a href="/tags">
+              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-name">标签</span>
+              </a>
+          </div>
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/atom.xml" rel="alternate">
+              <i class="menu-item-icon icon-next-feed"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+      </section>
+
+      
+        <section class="post-toc-wrap sidebar-panel-active">
+          <div class="post-toc-indicator-top post-toc-indicator"></div>
+          <div class="post-toc">
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#u9898_u76EE_u5927_u610F"><span class="nav-number">1.</span> <span class="nav-text">题目大意</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u8F93_u5165"><span class="nav-number">1.1.</span> <span class="nav-text">输入</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u8F93_u51FA"><span class="nav-number">1.2.</span> <span class="nav-text">输出</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u521D_u6B65_u5206_u6790"><span class="nav-number">2.</span> <span class="nav-text">初步分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u8D2A_u5FC3_u6CD5"><span class="nav-number">3.</span> <span class="nav-text">贪心法</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u4EE3_u7801"><span class="nav-number">3.1.</span> <span class="nav-text">代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u590D_u6742_u5EA6_u5206_u6790"><span class="nav-number">3.2.</span> <span class="nav-text">复杂度分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#u6700_u957F_u4E25_u683C_u9012_u51CF_u5B50_u5E8F_u5217"><span class="nav-number">4.</span> <span class="nav-text">最长严格递减子序列</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#u8BC1_u660E"><span class="nav-number">4.1.</span> <span class="nav-text">证明</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#L__26lt_3B_x__u4E0D_u6210_u7ACB"><span class="nav-number">4.1.1.</span> <span class="nav-text">L < x 不成立</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#L__26gt_3B_x__u4E0D_u6210_u7ACB"><span class="nav-number">4.1.2.</span> <span class="nav-text">L > x 不成立</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u4EE3_u7801-1"><span class="nav-number">4.2.</span> <span class="nav-text">代码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#u590D_u6742_u5EA6_u5206_u6790-1"><span class="nav-number">4.3.</span> <span class="nav-text">复杂度分析</span></a></li></ol></li></ol></div>
+            
+          </div>
+          <div class="post-toc-indicator-bottom post-toc-indicator"></div>
+        </section>
+      
+
+    </div>
+  </aside>
+
+
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner"> <div class="copyright" >
+  
+  &copy; &nbsp;  2015 - 
+  <span itemprop="copyrightYear">2016</span>
+  <span class="with-love">
+    <i class="icon-next-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">AlexInTown</span>
+</div>
+
+<div class="powered-by">
+  由 <a class="theme-link" href="http://hexo.io">Hexo</a> 强力驱动
+</div>
+
+<div class="theme-info">
+  主题 -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+ </div>
+    </footer>
+
+    <div class="back-to-top"></div>
+  </div>
+
+  <script type="text/javascript" src="/vendors/jquery/index.js?v=2.1.3"></script>
+
+  
+  
+  
+    
+
+  
+    
+  
+
+  <script type="text/javascript">
+    var duoshuoQuery = {short_name:"alexintown"};
+    (function() {
+      var ds = document.createElement('script');
+      ds.type = 'text/javascript';ds.async = true;
+      ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+      ds.charset = 'UTF-8';
+      (document.getElementsByTagName('head')[0]
+      || document.getElementsByTagName('body')[0]).appendChild(ds);
+    })();
+  </script>
+    
+     
+
+    
+  
+  
+  <script type="text/javascript" src="/vendors/fancybox/source/jquery.fancybox.pack.js"></script>
+  <script type="text/javascript" src="/js/fancy-box.js?v=0.4.5.1"></script>
+
+
+  <script type="text/javascript" src="/js/helpers.js?v=0.4.5.1"></script>
+  
+
+  <script type="text/javascript" src="/vendors/velocity/velocity.min.js"></script>
+  <script type="text/javascript" src="/vendors/velocity/velocity.ui.min.js"></script>
+
+  <script type="text/javascript" src="/js/motion_global.js?v=0.4.5.1" id="motion.global"></script>
+
+
+
+
+  <script type="text/javascript" src="/js/nav-toggle.js?v=0.4.5.1"></script>
+  <script type="text/javascript" src="/vendors/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  
+<script type="text/javascript" src="/js/bootstrap.scrollspy.js?v=0.4.5.1" id="bootstrap.scrollspy.custom"></script>
+
+
+<script type="text/javascript" id="sidebar.toc.highlight">
+  $(document).ready(function () {
+    var tocSelector = '.post-toc';
+    var $tocSelector = $(tocSelector);
+    var activeCurrentSelector = '.active-current';
+
+    $tocSelector
+      .on('activate.bs.scrollspy', function () {
+        var $currentActiveElement = $(tocSelector + ' .active').last();
+
+        removeCurrentActiveClass();
+        $currentActiveElement.addClass('active-current');
+
+        $tocSelector[0].scrollTop = $currentActiveElement.position().top;
+      })
+      .on('clear.bs.scrollspy', function () {
+        removeCurrentActiveClass();
+      });
+
+    function removeCurrentActiveClass () {
+      $(tocSelector + ' ' + activeCurrentSelector)
+        .removeClass(activeCurrentSelector.substring(1));
+    }
+
+    function processTOC () {
+      getTOCMaxHeight();
+      toggleTOCOverflowIndicators();
+    }
+
+    function getTOCMaxHeight () {
+      var height = $('.sidebar').height() -
+                   $tocSelector.position().top -
+                   $('.post-toc-indicator-bottom').height();
+
+      $tocSelector.css('height', height);
+
+      return height;
+    }
+
+    function toggleTOCOverflowIndicators () {
+      tocOverflowIndicator(
+        '.post-toc-indicator-top',
+        $tocSelector.scrollTop() > 0 ? 'show' : 'hide'
+      );
+
+      tocOverflowIndicator(
+        '.post-toc-indicator-bottom',
+        $tocSelector.scrollTop() >= $tocSelector.find('ol').height() - $tocSelector.height() ? 'hide' : 'show'
+      )
+    }
+
+    $(document).on('sidebar.motion.complete', function () {
+      processTOC();
+    });
+
+    $('body').scrollspy({ target: tocSelector });
+    $(window).on('resize', function () {
+      if ( $('.sidebar').hasClass('sidebar-active') ) {
+        processTOC();
+      }
+    });
+
+    onScroll($tocSelector);
+
+    function onScroll (element) {
+      element.on('mousewheel DOMMouseScroll', function (event) {
+          var oe = event.originalEvent;
+          var delta = oe.wheelDelta || -oe.detail;
+
+          this.scrollTop += ( delta < 0 ? 1 : -1 ) * 30;
+          event.preventDefault();
+
+          toggleTOCOverflowIndicators();
+      });
+    }
+
+    function tocOverflowIndicator (indicator, action) {
+      var $indicator = $(indicator);
+      var opacity = action === 'show' ? 0.4 : 0;
+      $indicator.velocity ?
+        $indicator.velocity('stop').velocity({
+          opacity: opacity
+        }, { duration: 100 }) :
+        $indicator.stop().animate({
+          opacity: opacity
+        }, 100);
+    }
+
+  });
+</script>
+
+<script type="text/javascript" id="sidebar.nav">
+  $(document).ready(function () {
+    var html = $('html');
+    var TAB_ANIMATE_DURATION = 200;
+    var hasVelocity = $.isFunction(html.velocity);
+
+    $('.sidebar-nav li').on('click', function () {
+      var item = $(this);
+      var activeTabClassName = 'sidebar-nav-active';
+      var activePanelClassName = 'sidebar-panel-active';
+      if (item.hasClass(activeTabClassName)) {
+        return;
+      }
+
+      var currentTarget = $('.' + activePanelClassName);
+      var target = $('.' + item.data('target'));
+
+      hasVelocity ?
+        currentTarget.velocity('transition.slideUpOut', TAB_ANIMATE_DURATION, function () {
+          target
+            .velocity('stop')
+            .velocity('transition.slideDownIn', TAB_ANIMATE_DURATION)
+            .addClass(activePanelClassName);
+        }) :
+        currentTarget.animate({ opacity: 0 }, TAB_ANIMATE_DURATION, function () {
+          currentTarget.hide();
+          target
+            .stop()
+            .css({'opacity': 0, 'display': 'block'})
+            .animate({ opacity: 1 }, TAB_ANIMATE_DURATION, function () {
+              currentTarget.removeClass(activePanelClassName);
+              target.addClass(activePanelClassName);
+            });
+        });
+
+      item.siblings().removeClass(activeTabClassName);
+      item.addClass(activeTabClassName);
+    });
+
+    $('.post-toc a').on('click', function (e) {
+      e.preventDefault();
+      var targetSelector = escapeSelector(this.getAttribute('href'));
+      var offset = $(targetSelector).offset().top;
+      hasVelocity ?
+        html.velocity('stop').velocity('scroll', {
+          offset: offset  + 'px',
+          mobileHA: false
+        }) :
+        $('html, body').stop().animate({
+          scrollTop: offset
+        }, 500);
+    });
+
+    // Expand sidebar on post detail page by default, when post has a toc.
+    var $tocContent = $('.post-toc-content');
+    if (isDesktop() && CONFIG.sidebar === 'post') {
+      if ($tocContent.length > 0 && $tocContent.html().trim().length > 0) {
+        displaySidebar();
+      }
+    }
+  });
+</script>
+
+
+
+  <script type="text/javascript">
+    $(document).ready(function () {
+      if (CONFIG.sidebar === 'always') {
+        displaySidebar();
+      }
+      if (isMobile()) {
+        FastClick.attach(document.body);
+      }
+    });
+  </script>
+
+  
+
+  
+  
+
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"1","bdMiniList":false,"bdPic":"","bdStyle":"0","bdSize":"16"},"slide":{"type":"slide","bdImg":"3","bdPos":"left","bdTop":"250"}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+
+
+
+  
+  <script type="text/javascript" src="/js/lazyload.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#posts").find('img').lazyload({
+        placeholder: "/images/loading.gif",
+        effect: "fadeIn"
+      });
+    });
+  </script>
+<!-- mathjax config similar to math.stackexchange -->
+
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    tex2jax: {
+      inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+      processEscapes: true
+    }
+  });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+      }
+    });
+</script>
+
+<script type="text/x-mathjax-config">
+    MathJax.Hub.Queue(function() {
+        var all = MathJax.Hub.getAllJax(), i;
+        for(i=0; i < all.length; i += 1) {
+            all[i].SourceElement().parentNode.className += ' has-jax';
+        }
+    });
+</script>
+
+<script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+</body>
+</html>
